@@ -5,7 +5,7 @@ export interface IPoll extends Document{
   options: string[];
   createdBy: Types.ObjectId | string;
   createdAt: Date;
-  expiresAt: Date;
+  expiresAt?: Date;
 }
 
 const PollSchema : Schema<IPoll>= new Schema({
