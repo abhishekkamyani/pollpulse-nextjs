@@ -14,7 +14,7 @@ export function Navbar() {
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
             <Link href="/dashboard" className="transition-colors hover:text-foreground">Dashboard</Link>
-            <Link href="/pricing" className="transition-colors hover:text-foreground">Pricing</Link>
+            <Link href="/polls/create" className="transition-colors hover:text-foreground">Create</Link>
             <Link href="/docs" className="transition-colors hover:text-foreground">Documentation</Link>
           </nav>
         </div>
