@@ -1,19 +1,26 @@
-import mongoose, { Schema, models, model, Document, Types } from "mongoose";
+import { IPoll } from "@/lib/types";
+import { Schema, models, model } from "mongoose";
+import "@/models/Vote";
 
-export interface IPoll extends Document{
-  question: string;
-  options: string[];
-  createdBy: Types.ObjectId | string;
-  createdAt: Date;
-  expiresAt?: Date;
-}
+const PollSchema = new Schema<IPoll>(
+  {
+    question: { type: String, required: true, trim: true },
+    options: [{ type: String, required: true, trim: true }],
+    createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    expiresAt: { type: Date },
+  },
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
 
-const PollSchema : Schema<IPoll>= new Schema({
-  question: { type: String, required: true },
-  options: [{ type: String, required: true }],
-  createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  createdAt: { type: Date, default: Date.now },
-  expiresAt: { type: Date },
+PollSchema.virtual("votes", {
+  ref: "Vote",
+  localField: "_id",
+  foreignField: "pollId",
+  justOne: false,
 });
 
 const Poll = models.Poll || model<IPoll>("Poll", PollSchema);
