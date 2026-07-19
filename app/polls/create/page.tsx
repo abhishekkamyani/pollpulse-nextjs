@@ -3,15 +3,11 @@
 import { useState } from "react"
 import { useForm, useFieldArray, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CalendarIcon, Loader2, Plus, X } from "lucide-react"
-import { format } from "date-fns"
+import { Loader2, Plus, X } from "lucide-react"
 
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
   Card,
   CardContent,
@@ -30,6 +26,20 @@ import {
 import { pollFormSchema, PollFormValues } from "@/lib/schemas"
 import { createPoll } from "@/actions/poll.action"
 
+const formatDateTimeValue = (value?: Date | string) => {
+  if (!value) return ""
+
+  if (typeof value === "string") return value
+
+  const year = value.getFullYear()
+  const month = `${value.getMonth() + 1}`.padStart(2, "0")
+  const day = `${value.getDate()}`.padStart(2, "0")
+  const hours = `${value.getHours()}`.padStart(2, "0")
+  const minutes = `${value.getMinutes()}`.padStart(2, "0")
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
 export default function CreatePollPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -44,7 +54,7 @@ export default function CreatePollPage() {
     defaultValues: {
       question: "Who will win todays match",
       options: [{ value: "Sri Lanka" }, { value: "Bangladesh" }],
-      expiresAt: undefined,
+      expiresAt: "",
     },
   })
 
@@ -58,7 +68,7 @@ export default function CreatePollPage() {
     try {
       const result = await createPoll(data);
 
-      if (result.error) {
+      if (result?.error) {
         console.log(result.error);
       }
 
@@ -156,38 +166,22 @@ export default function CreatePollPage() {
               )}
             </div>
 
-            {/* Expiry Date Picker */}
+            {/* Expiry Date & Time Picker */}
             <Controller
               control={control}
               name="expiresAt"
               render={({ field }) => (
                 <Field data-invalid={!!errors.expiresAt}>
-                  <FieldLabel>Expiration Date (Optional)</FieldLabel>
-                  <Popover>
-                    <PopoverTrigger>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal bg-background/50",
-                          !field.value && "text-muted-foreground"
-                        )}
-                        disabled={isSubmitting}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {field.value ? format(field.value, "PPP") : <span>No expiration</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) => date < new Date()}
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <FieldLabel>Expiration Date & Time (Optional)</FieldLabel>
+                  <Input
+                    type="datetime-local"
+                    value={formatDateTimeValue(field.value)}
+                    onChange={(event) => field.onChange(event.target.value)}
+                    disabled={isSubmitting}
+                    min={formatDateTimeValue(new Date())}
+                  />
                   <FieldDescription>
-                    When the timer runs out, users will no longer be able to submit votes.
+                    Choose the exact date and time when voting should close.
                   </FieldDescription>
                   <FieldError>{errors.expiresAt?.message}</FieldError>
                 </Field>

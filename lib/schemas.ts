@@ -13,7 +13,7 @@ export const pollFormSchema = z.object({
         )
         .min(2, { message: "You must provide at least 2 options." })
         .max(6, { message: "You can add a maximum of 6 options." }),
-    expiresAt: z.date().optional(),
+    expiresAt: z.string().optional(),
 })
 
 export type PollFormValues = z.infer<typeof pollFormSchema>

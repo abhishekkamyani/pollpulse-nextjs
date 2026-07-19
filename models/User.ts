@@ -1,21 +1,14 @@
+import { IUser } from "@/lib/types";
 import { model, models, Schema } from "mongoose";
 
-export interface IUser extends Document {
-    name: String;
-    email: String;
-    password?: string;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-const UserSchema: Schema<IUser> = new Schema(
-    {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-},
+const UserSchema = new Schema<IUser>(
   {
-    timestamps: true, 
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    password: { type: String, required: true },
+  },
+  {
+    timestamps: true,
   }
 );
 
