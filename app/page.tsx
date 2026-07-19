@@ -6,8 +6,6 @@ import { Metadata } from "next";
 export async function generateMetadata(): Promise<Metadata> {
   const session = await auth();
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-
   // 1. Metadata for Logged-In Users
   if (session?.user) {
     return {
@@ -28,11 +26,11 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: "PollApp — Create Instant Real-Time Polls",
       description: "Gather feedback instantly with beautiful, dynamic live-syncing visualizations.",
-      url: appUrl,
+      url: "/",
       siteName: "PollApp",
       images: [
         {
-          url: `${appUrl}/og-image.png`, // Path to your preview image in /public
+          url: "/og-image.png", // Path to your preview image in /public
           width: 1200,
           height: 630,
           alt: "PollApp Live Analytics Dashboard Preview",
@@ -44,7 +42,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title: "PollApp — Create Instant Real-Time Polls",
       description: "Gather feedback instantly with beautiful, dynamic live-syncing visualizations.",
-      images: [`${appUrl}/og-image.png`], // Path to your preview image in /public
+      images: ["/og-image.png"],
     },
   };
 }
