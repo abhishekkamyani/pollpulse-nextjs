@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react"
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -20,7 +21,7 @@ function Card({
   )
 }
 
-function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
+function CardHeader({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="card-header"
