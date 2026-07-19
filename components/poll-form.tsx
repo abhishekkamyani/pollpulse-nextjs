@@ -44,7 +44,13 @@ export const PollForm = ({ action, initialData }: PollFormProps) => {
         setIsSubmitting(true)
         setServerError(null)
         try {
-            const result = await action(data);
+            // normalize datetime-local (client-local) into an ISO string before sending
+            const payload: PollFormValues = {
+                ...data,
+                expiresAt: data.expiresAt ? new Date(data.expiresAt).toISOString() : undefined,
+            }
+
+            const result = await action(payload);
 
             if (result && !result.success) {
                 setServerError(result.error || "Something went wrong.");
