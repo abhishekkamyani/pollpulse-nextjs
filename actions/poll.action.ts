@@ -15,9 +15,6 @@ export const createPoll = async (data: PollFormValues): ApiPromise => {
     }
 
     const { question, options, expiresAt } = data;
-    // const normalizedExpiresAt = expiresAt ? new Date(expiresAt) : undefined;
-
-    // console.log("expiresAt", normalizedExpiresAt)
 
     try {
         await connectDB();
@@ -25,7 +22,7 @@ export const createPoll = async (data: PollFormValues): ApiPromise => {
         const newPoll = await Poll.create({
             question,
             options: options.map(o => o.value),
-            expiresAt,
+            expiresAt: expiresAt ? new Date(expiresAt) : undefined,
             createdBy: session.user.id,
             createdAt: new Date(),
         })
@@ -33,6 +30,10 @@ export const createPoll = async (data: PollFormValues): ApiPromise => {
         revalidatePath("/");
         redirect(`/polls/${newPoll._id.toString()}`);
     } catch (error) {
+        if (typeof error === "object" && error !== null && "digest" in error && typeof (error as { digest?: string }).digest === "string" && (error as { digest?: string }).digest?.startsWith("NEXT_REDIRECT")) {
+            throw error;
+        }
+
         console.log("createPoll error:", error);
         return { success: false, error: "Something went wrong. Please try again." };
     }
@@ -63,12 +64,6 @@ export const getYourPolls = async () => {
 }
 
 export const getPollById = async (id: string, checkAuthor?: boolean) => {
-    const session = await auth();
-
-    if (!session?.user?.id) {
-        return { error: "You must be logged in to create a poll." };
-    }
-
     if (!id) {
         return { error: "Poll Id is required", success: false }
     }
@@ -82,21 +77,29 @@ export const getPollById = async (id: string, checkAuthor?: boolean) => {
             return { success: false, error: "Poll not found" };
         }
 
-        // If checkAuthor is false, we skip the authorization check and return the poll data directly
+        // If no author check requested, return the poll immediately
         if (!checkAuthor) {
             return { success: true, data: poll };
         }
 
-        console.log("== poll data getPollById ==", poll.createdBy.toString(), session.user.id);
-        // Authorization check: compare current user ID with createdBy
+        // For author checks, require an authenticated session
+        const session = await auth();
+        if (!session?.user?.id) {
+            return { success: false, error: "Unauthorized" };
+        }
+
+        // Authorization: ensure the requesting user created the poll
         if (poll.createdBy.toString() !== session.user.id) {
-            // when the user is not the author, redirect to a not found page
-            redirect("/not-found");
+            return { success: false, error: "Unauthorized" };
         }
 
         return { success: true, data: poll };
 
     } catch (error) {
+        if (typeof error === "object" && error !== null && "digest" in error && typeof (error as { digest?: string }).digest === "string" && (error as { digest?: string }).digest?.startsWith("NEXT_REDIRECT")) {
+            throw error;
+        }
+
         return {
             success: false,
             error: "Unable to get the poll. Please try again later."

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import { PollForm } from "@/components/poll-form"
 import { updatePoll, getPollById } from "@/actions/poll.action" // Assume getPollById exists
+import { formatDateTimeValue } from "@/lib/dataHelper";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { PollFormValues, UpdatePollPageProps } from "@/lib/types";
 
@@ -21,7 +22,7 @@ export default async function UpdatePollPage({ params }: UpdatePollPageProps) {
     const initialData : PollFormValues = {
         question: poll.question,
         options: poll.options.map((opt: any) => ({ value: opt })),
-        expiresAt: poll.expiresAt ?? "",
+           expiresAt: formatDateTimeValue(poll.expiresAt),
     };
 
     console.log("== initial data update page", initialData)
