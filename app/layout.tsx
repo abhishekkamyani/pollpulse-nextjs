@@ -4,14 +4,29 @@ import { cn } from "@/lib/utils";
 import { Navbar } from "@/components/navbar";
 import AuthProvider from "./providers";
 
-// Global fallback metadata configuration
+// Build a safe metadata base URL from env with a dev fallback
+const _resolveMetadataBase = () => {
+  const fallback = process.env.NODE_ENV === "production" ? "https://example.com" : "http://localhost:3000";
+  const raw = process.env.NEXT_PUBLIC_APP_URL || fallback;
+  try {
+    return new URL(raw);
+  } catch {
+    try {
+      // attempt to prepend protocol if missing
+      return new URL(`https://${raw}`);
+    } catch {
+      return new URL(fallback);
+    }
+  }
+};
+
 export const metadata: Metadata = {
   title: {
     default: "PollApp — Instant Real-Time Surveys",
-    template: "%s | PollApp", // Child pages automatically prefix their title here
+    template: "%s | PollApp",
   },
   description: "Create real-time polls, gather dynamic feedback, and watch live charts sync instantly.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL!), // Crucial for absolute OG image paths
+  metadataBase: _resolveMetadataBase(),
 };
 
 export default function RootLayout({
