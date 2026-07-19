@@ -49,6 +49,9 @@
 }
 
 :root {
+  --font-sans: "Inter", "Segoe UI", Arial, sans-serif;
+  --font-geist-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --font-heading: "Georgia", "Times New Roman", serif;
   --background: oklch(1 0 0);
   --foreground: oklch(0.147 0.004 49.3);
   --card: oklch(1 0 0);
