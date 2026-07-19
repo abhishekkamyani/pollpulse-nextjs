@@ -56,7 +56,7 @@ export interface DeleteButtonProps {
 export type PollFormValues = z.infer<typeof pollFormSchema>
 
 export interface UpdatePollPageProps {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }
 
 export interface PollFormProps {

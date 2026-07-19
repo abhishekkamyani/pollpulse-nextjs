@@ -21,8 +21,6 @@ export const PollForm = ({ action, initialData }: PollFormProps) => {
 
     const isEditMode = !!initialData;
 
-    console.log("== initialData ==", initialData)
-
     const {
         register,
         control,
