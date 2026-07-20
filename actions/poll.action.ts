@@ -107,6 +107,24 @@ export const getPollById = async (id: string, checkAuthor?: boolean) => {
     }
 }
 
+export const getPolls = async () => {
+    const session = await auth();
+
+    try {
+        await connectDB();
+
+        const polls = await Poll.find({createdBy: { $ne: session?.user?.id }})
+            .populate("createdBy", "name email")
+            .populate({ path: "votes", select: "optionIndex userId", options: { strictPopulate: false } })
+            .lean();
+
+        return { data: polls, status: 200 };
+    } catch (error) {
+        console.error("Error fetching polls:", error);
+        return { error: "Something went wrong. Please try again." };
+    }
+};
+
 export const updatePoll = async (id: string, data: PollFormValues) => {
     const session = await auth();
 
