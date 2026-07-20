@@ -70,9 +70,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Home() {
   const session = await getSession();
 
-  if (session?.user && session?.user?.id) {
-    return <PollsView />;
-  }
+  // if (session?.user && session?.user?.id) {
+  //   return <PollsView />;
+  // }
 
-  return <LandingView />
+  // return <LandingView />
+
+  return <PollsView />;
 }
