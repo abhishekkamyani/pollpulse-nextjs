@@ -124,7 +124,7 @@ export const getPollById = async (id: string) => {
         await connectDB();
 
         const poll = await Poll.findById(id)
-            .populate("createdBy", "name email")
+            .populate("createdBy", "name")
             .lean();
 
         if (!poll) {

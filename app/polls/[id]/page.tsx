@@ -33,10 +33,7 @@ export default async function PollVotePage({ params }: PageProps) {
     isCreator: session?.user?.email === poll.createdBy.email,
     pollVote: result.pollVote,
   };
-
-  console.log("===## poll ##=== ", poll)
-
-
+  
   return (
     <PollVote poll={formattedPoll} />
   )

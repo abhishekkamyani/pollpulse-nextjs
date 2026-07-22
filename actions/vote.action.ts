@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
 import { ApiPromise, CheckVoteResponse, IVote } from "@/lib/types";
+import Poll from "@/models/Poll";
 import Vote from "@/models/Vote";
 import { revalidatePath } from "next/cache";
 
@@ -16,6 +17,14 @@ export const castVote = async (pollId: string, optionIndex: number): ApiPromise 
 
         if (!session?.user?.id) {
             return { success: false, error: "You must be logged in to vote this poll." };
+        }
+
+        await connectDB();
+
+        const isPollFound = await Poll.findById(pollId, "_id");
+
+        if(!isPollFound?._id){
+          return { success: false, error: "Poll not found." };
         }
 
         const vote = await Vote.create({
