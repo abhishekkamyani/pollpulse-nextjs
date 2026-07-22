@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import { PollForm } from "@/components/poll-form"
-import { updatePoll, getPollById } from "@/actions/poll.action" // Assume getPollById exists
+import { updatePoll, getUserPollById } from "@/actions/poll.action"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { PollFormValues, UpdatePollPageProps } from "@/lib/types";
 
@@ -8,7 +8,7 @@ export default async function UpdatePollPage({ params }: UpdatePollPageProps) {
     const { id } = await params;
 
     // 1. Fetch your dynamic poll data on the server
-    const response = await getPollById(id, true); // Pass true to check author
+    const response = await getUserPollById(id); // Pass true to check author
     const poll = response?.data;
     if (!poll) return notFound();
 

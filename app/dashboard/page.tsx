@@ -118,7 +118,7 @@ export default async function DashboardPage() {
                   <div className="flex items-center gap-2 rounded-xl bg-muted/50 border border-border/40 px-3.5 py-2 w-fit group-hover:bg-muted/80 transition-colors duration-300">
                     <BarChart2 className="h-4 w-4 text-muted-foreground/80" />
                     <span className="text-sm font-bold text-foreground/80 tabular-nums">
-                      {poll.votes.toLocaleString()}
+                      {poll.votes?.length}
                     </span>
                     <span className="text-xs text-muted-foreground/70 font-medium">votes cast</span>
                   </div>

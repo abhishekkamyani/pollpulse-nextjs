@@ -14,10 +14,12 @@ import { Field, FieldLabel, FieldDescription, FieldError } from "@/components/ui
 import { pollFormSchema } from "@/lib/schemas"
 import { formatDateTimeValue } from "@/lib/dataHelper";
 import { PollFormProps, PollFormValues } from "@/lib/types";
+import { useRouter } from "next/navigation";
 
 export const PollForm = ({ action, initialData }: PollFormProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [serverError, setServerError] = useState<string | null>(null)
+    const router = useRouter();
 
     const isEditMode = !!initialData;
 
@@ -54,9 +56,13 @@ export const PollForm = ({ action, initialData }: PollFormProps) => {
 
             if (result && !result.success) {
                 setServerError(result.error || "Something went wrong.");
+                return;
+            }
+            if (result?.id?.toString()) {
+                router.push(`/polls/${result?.id.toString()}`)
             }
         } catch (error) {
-            console.error(error);
+            console.log(error);
             setServerError("An unexpected error occurred.");
         } finally {
             setIsSubmitting(false);

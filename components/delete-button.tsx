@@ -4,11 +4,13 @@ import { useTransition, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Trash2 } from "lucide-react";
 import { DeleteButtonProps } from "@/lib/types";
+import { useRouter } from "next/navigation";
 
 
 export function DeleteButton({ id, deleteAction }: DeleteButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleDelete = () => {
     setErrorMessage(null); // Clear previous errors
@@ -20,7 +22,11 @@ export function DeleteButton({ id, deleteAction }: DeleteButtonProps) {
         // Safe message parsed successfully without Next.js intercepting it
         console.log(result.error)
         setErrorMessage(result.error || "An unexpected error occurred.");
+        return;
       }
+
+      router.push("/dashboard");
+      router.refresh();
     });
   };
 
@@ -42,7 +48,7 @@ export function DeleteButton({ id, deleteAction }: DeleteButtonProps) {
           </>
         )}
       </Button>
-      
+
       {errorMessage && (
         <p className="text-xs font-medium text-destructive mt-1">
           {errorMessage}

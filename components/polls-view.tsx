@@ -3,6 +3,7 @@ import {
   BarChart2,
   Calendar,
   Inbox,
+  User,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -23,6 +24,7 @@ export async function PollsView() {
   const response = await getPolls();
   console.log("Fetched polls:", response);
   const polls = response.data || [];
+  console.log("Fetched polls data:", polls[0]);
   // ------------------------------
 
   return (
@@ -99,13 +101,19 @@ export async function PollsView() {
                 </CardHeader>
 
                 {/* Public Engagement Trackers */}
-                <CardContent className="pb-5">
+                <CardContent className="pb-5 flex flex-col justify-center items-center">
                   <div className="flex items-center gap-2 rounded-xl bg-muted/50 border border-border/40 px-3.5 py-2 w-fit group-hover:bg-muted/80 transition-colors duration-300">
                     <BarChart2 className="h-4 w-4 text-muted-foreground/80" />
                     <span className="text-sm font-bold text-foreground/80 tabular-nums">
-                      {poll.votes.toLocaleString()}
+                      {poll.votes?.length}
                     </span>
                     <span className="text-xs text-muted-foreground/70 font-medium">votes cast</span>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-xl bg-muted/50 border border-border/40 px-3.5 py-2 w-fit group-hover:bg-muted/80 transition-colors duration-300">
+                    <User  className="h-4 w-4 text-muted-foreground/80" />
+                    <span className="text-sm font-bold text-foreground/80 tabular-nums">
+                      {poll.createdBy?.name}
+                    </span>
                   </div>
                 </CardContent>
 
