@@ -64,3 +64,29 @@ export interface PollFormProps {
   action: (data: PollFormValues) => Promise<{ success: boolean; error?: string } | undefined>;
   initialData?: Partial<PollFormValues>;
 }
+
+export interface PollVotePageProps {
+  params: Promise<{ id: string }>;
+}
+
+export interface PollVoteState {
+  isVoted: boolean;
+  optionIndex: number | null;
+}
+
+export interface CheckVoteResponse {
+  success: boolean;
+  pollVote?: PollVoteState;
+  error?: string;
+}
+
+export interface PollDetails {
+  _id: string;
+  question: string;
+  isCreator: boolean;
+  options: string[];
+  createdBy: string;
+  pollVote?: PollVoteState;
+  createdAt: Date;
+  expiresAt?: Date;
+}

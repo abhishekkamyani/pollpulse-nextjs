@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
 import { ApiPromise, IPoll, PollFormValues } from "@/lib/types";
 import Poll from "@/models/Poll";
+import User from "@/models/User";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -63,49 +64,94 @@ export const getYourPolls = async () => {
     }
 }
 
-export const getPollById = async (id: string, checkAuthor?: boolean) => {
+/**
+ * Action 1: Get a poll by ID ONLY if it belongs to the logged-in user
+ */
+export const getUserPollById = async (id: string) => {
     if (!id) {
-        return { error: "Poll Id is required", success: false }
+        return { success: false, error: "Poll ID is required" };
     }
 
     try {
-        await connectDB();
-
-        const poll = await Poll.findById(id).lean();
-
-        if (!poll) {
-            return { success: false, error: "Poll not found" };
-        }
-
-        // If no author check requested, return the poll immediately
-        if (!checkAuthor) {
-            return { success: true, data: poll };
-        }
-
-        // For author checks, require an authenticated session
         const session = await auth();
         if (!session?.user?.id) {
             return { success: false, error: "Unauthorized" };
         }
 
-        // Authorization: ensure the requesting user created the poll
-        if (poll.createdBy.toString() !== session.user.id) {
-            return { success: false, error: "Unauthorized" };
+        await connectDB();
+
+        // Query for the poll matching both the poll ID AND the current user's ID
+        const poll = await Poll.findOne({
+            _id: id,
+            createdBy: session.user.id,
+        }).lean();
+
+        if (!poll) {
+            return { success: false, error: "Poll not found or access denied" };
         }
 
-        return { success: true, data: poll };
-
+        return {
+            success: true,
+            data: JSON.parse(JSON.stringify(poll)),
+        };
     } catch (error) {
-        if (typeof error === "object" && error !== null && "digest" in error && typeof (error as { digest?: string }).digest === "string" && (error as { digest?: string }).digest?.startsWith("NEXT_REDIRECT")) {
+        if (
+            typeof error === "object" &&
+            error !== null &&
+            "digest" in error &&
+            typeof (error as { digest?: string }).digest === "string" &&
+            (error as { digest?: string }).digest?.startsWith("NEXT_REDIRECT")
+        ) {
             throw error;
         }
 
         return {
             success: false,
-            error: "Unable to get the poll. Please try again later."
+            error: "Unable to fetch your poll. Please try again later.",
         };
     }
-}
+};
+
+/**
+ * Action: Get ANY poll by ID with populated author details (name and email)
+ */
+export const getPollById = async (id: string) => {
+    if (!id) {
+        return { success: false, error: "Poll ID is required" };
+    }
+
+    try {
+        await connectDB();
+
+        const poll = await Poll.findById(id)
+            .populate("createdBy", "name email")
+            .lean();
+
+        if (!poll) {
+            return { success: false, error: "Poll not found" };
+        }
+
+        return {
+            success: true,
+            data: JSON.parse(JSON.stringify(poll)),
+        };
+    } catch (error) {
+        if (
+            typeof error === "object" &&
+            error !== null &&
+            "digest" in error &&
+            typeof (error as { digest?: string }).digest === "string" &&
+            (error as { digest?: string }).digest?.startsWith("NEXT_REDIRECT")
+        ) {
+            throw error;
+        }
+
+        return {
+            success: false,
+            error: "Unable to fetch poll details. Please try again later.",
+        };
+    }
+};
 
 export const getPolls = async () => {
     const session = await auth();
@@ -113,7 +159,7 @@ export const getPolls = async () => {
     try {
         await connectDB();
 
-        const polls = await Poll.find({createdBy: { $ne: session?.user?.id }})
+        const polls = await Poll.find({ createdBy: { $ne: session?.user?.id } })
             .populate("createdBy", "name email")
             .populate({ path: "votes", select: "optionIndex userId", options: { strictPopulate: false } })
             .lean();
@@ -194,6 +240,7 @@ export const deletePoll = async (id: string): ApiPromise => {
         }
 
         revalidatePath("/");
+        // revalidatePath("/dashboard");
         return { success: true }
 
     } catch (error) {
