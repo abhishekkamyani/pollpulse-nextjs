@@ -2,13 +2,12 @@
 
 import { auth } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
-import { ApiPromise, IPoll, PollFormValues } from "@/lib/types";
+import { ApiPromise, CreatePollResponse, IPoll, PollFormValues } from "@/lib/types";
 import Poll from "@/models/Poll";
-import User from "@/models/User";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-export const createPoll = async (data: PollFormValues): ApiPromise => {
+export const createPoll = async (data: PollFormValues): CreatePollResponse => {
     const session = await auth();
 
     if (!session?.user?.id) {
@@ -29,7 +28,8 @@ export const createPoll = async (data: PollFormValues): ApiPromise => {
         })
 
         revalidatePath("/");
-        redirect(`/polls/${newPoll._id.toString()}`);
+        return { success: true, id: newPoll._id.toString() };
+        // redirect(`/polls/${newPoll._id.toString()}`);
     } catch (error) {
         if (typeof error === "object" && error !== null && "digest" in error && typeof (error as { digest?: string }).digest === "string" && (error as { digest?: string }).digest?.startsWith("NEXT_REDIRECT")) {
             throw error;

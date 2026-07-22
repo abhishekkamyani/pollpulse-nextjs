@@ -47,10 +47,12 @@ export interface IVote extends IVoteCreate, Document {
 
 export type ApiPromise = Promise<{ success: boolean; error?: string }>;
 
+export type CreatePollResponse = Promise<{ success: boolean; error?: string, id?: string }>;
+
 // =============== Components TS ================
 export interface DeleteButtonProps {
   id: string;
-  deleteAction: (id: string) => ApiPromise;
+  deleteAction: (id: string) => CreatePollResponse;
 }
 
 export type PollFormValues = z.infer<typeof pollFormSchema>
@@ -61,7 +63,7 @@ export interface UpdatePollPageProps {
 
 export interface PollFormProps {
   // The unified action prop that accepts your validated form values
-  action: (data: PollFormValues) => Promise<{ success: boolean; error?: string } | undefined>;
+  action: (data: PollFormValues) => CreatePollResponse;
   initialData?: Partial<PollFormValues>;
 }
 
