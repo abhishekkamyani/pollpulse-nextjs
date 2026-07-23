@@ -24,8 +24,8 @@ export default async function PollResultsPage({ params }: PollResultsPageProps) 
   const { id } = await params;
   const response = await getPollResults(id)
 
-  const apiResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/polls/results/${id}`, { cache: "no-store" });
-  console.log("==apiResponse==", apiResponse)
+  // const apiResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/polls/results/${id}`, { cache: "no-store" , headers: Object.fromEntries((await headers()).entries()),});
+  // console.log("==apiResponse==", apiResponse)
   // const contentType = apiResponse.headers.get('content-type');
   // if (!contentType || !contentType.includes('application/json')) {
   //   // throw new Error('Unauthorized or invalid response');
@@ -33,7 +33,7 @@ export default async function PollResultsPage({ params }: PollResultsPageProps) 
   //   // return <h1>Error</h1>
   // }
 
-  const apiData = await apiResponse.json();
+  // const apiData = await apiResponse.json();
 
   // if (!response.success || !apiData.success) return <h1>Error: needs to create error file</h1>
   if (!response.success) return <h1>Error: needs to create error file</h1>

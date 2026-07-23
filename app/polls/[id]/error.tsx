@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
-import { AlertCircle, ArrowLeft, Home, MoveLeft, RotateCcw } from "lucide-react";
+import { AlertCircle, MoveLeft, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
