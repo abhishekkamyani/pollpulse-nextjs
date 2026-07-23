@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-const protectedRoutes = ["/dashboard", "/polls"];
+const protectedRoutes = ["/dashboard", "/polls/create", "/api/polls/results"];
 
 export async function proxy(req: NextRequest) {
   const token = await getToken({
@@ -26,5 +26,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

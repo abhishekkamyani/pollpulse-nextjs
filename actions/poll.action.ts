@@ -2,8 +2,10 @@
 
 import { auth } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
-import { ApiPromise, CreatePollResponse, IPoll, PollFormValues } from "@/lib/types";
+import { ApiPromise, CreatePollResponse, GetPollResultsResponse, IPoll, PollFormValues } from "@/lib/types";
 import Poll from "@/models/Poll";
+import Vote from "@/models/Vote";
+import { Types } from "mongoose";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -247,6 +249,58 @@ export const deletePoll = async (id: string): ApiPromise => {
         return {
             success: false,
             error: "Unable to complete the deletion. Please try again later."
+        };
+    }
+}
+
+export const getPollResults = async (id: string): Promise<GetPollResultsResponse> => {
+    if (!id) {
+        return { error: "Poll Id is required", success: false }
+    }
+
+    try {
+        await connectDB();
+
+        const poll = await Poll.findById(id).lean();
+        if (!poll) {
+            return { success: false, error: "Poll not found" };
+        }
+
+
+        // const votes = await Vote.find({ pollId: id }).select("optionIndex").lean();
+        // const voteCounts = votes.reduce<Record<number, number>>((acc, vote) => {
+        //     const index = vote.optionIndex ?? 0;
+        //     acc[index] = (acc[index] ?? 0) + 1;
+        //     return acc;
+        // }, {});
+
+        const voteAggregates = await Vote.aggregate([
+            { $match: { pollId: new Types.ObjectId(id) } },
+            { $group: { _id: "$optionIndex", count: { $sum: 1 } } },
+        ]);
+
+        const voteCounts = voteAggregates.reduce<Record<number, number>>((acc, vote) => {
+            acc[vote._id as number] = vote.count;
+            return acc;
+        }, {});
+
+        const formattedOptions = poll.options.map((label: string, optionIndex: number) => ({
+            label,
+            index: optionIndex,
+            voteCount: voteCounts[optionIndex] ?? 0,
+        }));
+
+        return {
+            success: true,
+            data: {
+                ...poll,
+                options: formattedOptions,
+            },
+        };
+    } catch (error) {
+        return {
+            success: false,
+            error: "Unable to get the poll results. Please try again later."
         };
     }
 }

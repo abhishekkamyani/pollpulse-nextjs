@@ -24,7 +24,7 @@ export async function PollsView() {
   const response = await getPolls();
   console.log("Fetched polls:", response);
   const polls = response.data || [];
-  console.log("Fetched polls data:", polls[0]);
+  console.log("Fetched polls data:", polls);
   // ------------------------------
 
   return (

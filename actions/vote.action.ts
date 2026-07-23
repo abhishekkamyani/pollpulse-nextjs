@@ -8,37 +8,48 @@ import Vote from "@/models/Vote";
 import { revalidatePath } from "next/cache";
 
 export const castVote = async (pollId: string, optionIndex: number): ApiPromise => {
-    if (!pollId || !optionIndex.toString()) {
-        return { success: false, error: "Required params are missing either pollId or optionIndex" };
+  if (!pollId || !optionIndex.toString()) {
+    return { success: false, error: "Required params are missing either pollId or optionIndex" };
+  }
+
+  try {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return { success: false, error: "You must be logged in to vote this poll." };
     }
 
-    try {
-        const session = await auth();
+    await connectDB();
 
-        if (!session?.user?.id) {
-            return { success: false, error: "You must be logged in to vote this poll." };
-        }
+    const isPollFound = await Poll.findById(pollId, "_id expiresAt createdBy");
 
-        await connectDB();
-
-        const isPollFound = await Poll.findById(pollId, "_id");
-
-        if(!isPollFound?._id){
-          return { success: false, error: "Poll not found." };
-        }
-
-        const vote = await Vote.create({
-            pollId,
-            optionIndex,
-            userId: session?.user?.id
-        })
-
-        revalidatePath("/");
-        // redirect(`/polls/${newPoll._id.toString()}`);
-        return { success: true }
-    } catch (error) {
-        return { success: false, error: "Something went wrong. Please try again." };
+    if (!isPollFound?._id) {
+      return { success: false, error: "Poll not found." };
     }
+
+    const isCreator = session?.user?.id === isPollFound?.createdBy;
+    const alreadyVoted = Vote.findOne({pollId: isPollFound._id, userId: isPollFound.createdBy})
+    const isExpired = isPollFound.expiresAt && new Date(isPollFound.expiresAt) < new Date()
+
+    const isLocked = isCreator || alreadyVoted || isExpired;
+
+    if (isLocked) {
+      throw new Error();
+    }
+    
+
+    const vote = await Vote.create({
+      pollId,
+      optionIndex,
+      userId: session?.user?.id
+    })
+
+    revalidatePath("/");
+    // redirect(`/polls/${newPoll._id.toString()}`);
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: "Something went wrong. Please try again." };
+  }
 }
 
 export const checkVote = async (
