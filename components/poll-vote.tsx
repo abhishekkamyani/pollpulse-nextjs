@@ -19,6 +19,7 @@ import { castVote } from "@/actions/vote.action"
 import { deletePoll } from "@/actions/poll.action"
 import { DeleteButton } from "./delete-button"
 import { format } from "date-fns"
+import { formatDatetime } from "@/lib/dataHelper"
 
 export function PollVote({ poll }: { poll: PollDetails }) {
     const [selectedOptionId, setSelectedOptionId] = useState<number | null>(
@@ -30,17 +31,16 @@ export function PollVote({ poll }: { poll: PollDetails }) {
 
     const isCreator = poll.isCreator
     const alreadyVoted = poll.pollVote?.isVoted ?? false
-
-    // Format helpers
-    const formatDatetime = (date: Date) => format(new Date(date), "hh:mm a MMM d, yyyy")
     const isExpired = poll.expiresAt && new Date(poll.expiresAt) < new Date()
-
-
-    const isLocked = isCreator || alreadyVoted || hasVoted || isExpired;
+    const isLocked = false;
 
     const handleVoteSubmit = () => {
         if (isCreator) {
             setErrorMessage("You cannot vote on your own poll.")
+            return
+        }
+        if (isExpired) {
+            setErrorMessage("You cannot vote on an expired poll.")
             return
         }
         if (selectedOptionId === null) {

@@ -1,3 +1,5 @@
+import { format } from "date-fns"
+
 export const formatDateTimeValue = (value?: Date | string) => {
   if (!value) return ""
 
@@ -27,3 +29,5 @@ export const formatDateTimeValue = (value?: Date | string) => {
 
   return `${year}-${month}-${day}T${hours}:${minutes}`
 }
+
+export const formatDatetime = (date: Date) => format(new Date(date), "hh:mm a MMM d, yyyy")
