@@ -30,7 +30,7 @@ export default async function PollVotePage({ params }: PageProps) {
     expiresAt: poll.expiresAt,
     createdAt: poll.createdAt,
     createdBy: poll.createdBy.name, 
-    isCreator: session?.user?.email === poll.createdBy.email,
+    isCreator: session?.user?.id === poll.createdBy._id,
     pollVote: result.pollVote,
   };
   

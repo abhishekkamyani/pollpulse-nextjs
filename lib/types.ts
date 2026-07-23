@@ -92,3 +92,23 @@ export interface PollDetails {
   createdAt: Date;
   expiresAt?: Date;
 }
+
+export interface PollResultOption {
+  label: string;
+  index: number;
+  voteCount: number;
+}
+
+export interface PollResultsData {
+  _id: Types.ObjectId;
+  question: string;
+  options: PollResultOption[];
+  createdBy: Populated<IUser>;
+  createdAt: Date;
+  updatedAt: Date;
+  expiresAt?: Date;
+}
+
+export type GetPollResultsResponse =
+  | { success: true; data: PollResultsData }
+  | { success: false; error: string };

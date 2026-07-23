@@ -30,7 +30,13 @@ export function PollVote({ poll }: { poll: PollDetails }) {
 
     const isCreator = poll.isCreator
     const alreadyVoted = poll.pollVote?.isVoted ?? false
-    const isLocked = isCreator || alreadyVoted || hasVoted
+
+    // Format helpers
+    const formatDatetime = (date: Date) => format(new Date(date), "hh:mm a MMM d, yyyy")
+    const isExpired = poll.expiresAt && new Date(poll.expiresAt) < new Date()
+
+
+    const isLocked = isCreator || alreadyVoted || hasVoted || isExpired;
 
     const handleVoteSubmit = () => {
         if (isCreator) {
@@ -51,10 +57,6 @@ export function PollVote({ poll }: { poll: PollDetails }) {
             setHasVoted(true)
         })
     }
-
-    // Format helpers
-    const formatDatetime = (date: Date) => format(new Date(date), "hh:mm a MMM d, yyyy")
-    const isExpired = poll.expiresAt && new Date(poll.expiresAt) < new Date()
 
     return (
         <div className="mx-auto max-w-xl px-4 py-10 space-y-8">
@@ -98,9 +100,14 @@ export function PollVote({ poll }: { poll: PollDetails }) {
                             <Check className="h-3 w-3" /> Voted
                         </Badge>
                     ) : (
-                        <Badge className="w-fit bg-primary/10 text-primary hover:bg-primary/10 border-none font-semibold">
-                            Active Voting Booth
-                        </Badge>
+                        isExpired ?
+                            <Badge className="w-fit bg-red-600 text-white px-3 py-1 rounded border-none font-semibold">
+                                Expired
+                            </Badge>
+                            :
+                            <Badge className="w-fit bg-primary/10 text-primary hover:bg-primary/10 border-none font-semibold">
+                                Active Voting Booth
+                            </Badge>
                     )}
 
                     <CardTitle className="text-xl md:text-2xl font-bold tracking-tight leading-tight">
