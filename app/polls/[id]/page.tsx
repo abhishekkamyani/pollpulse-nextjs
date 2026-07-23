@@ -5,6 +5,7 @@ import { checkVote } from '@/actions/vote.action';
 import { PollVote } from '@/components/poll-vote';
 import { auth } from '@/lib/auth';
 import { PollDetails } from '@/lib/types';
+import { notFound } from 'next/navigation';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -17,7 +18,7 @@ export default async function PollVotePage({ params }: PageProps) {
   const response = await getPollById(id);
   const poll = response?.data;
 
-  if (!poll) return <div>Poll not found</div>;
+  if (!poll) notFound();
 
   const result = await checkVote(poll._id);
 
