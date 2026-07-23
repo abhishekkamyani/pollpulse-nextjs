@@ -1,7 +1,5 @@
-// app/polls/[id]/update/loading.tsx
-
 import { PollFormLoading } from "@/components/poll-form-loading";
 
-export default function UpdatePollLoading() {
+export default function CreatePollLoading() {
   return <PollFormLoading />;
 }
