@@ -5,6 +5,7 @@ import { connectDB } from "@/lib/db";
 import { ApiPromise, CreatePollResponse, GetPollResultsResponse, IPoll, PollFormValues } from "@/lib/types";
 import Poll from "@/models/Poll";
 import Vote from "@/models/Vote";
+import { Types } from "mongoose";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -265,10 +266,21 @@ export const getPollResults = async (id: string): Promise<GetPollResultsResponse
             return { success: false, error: "Poll not found" };
         }
 
-        const votes = await Vote.find({ pollId: id }).select("optionIndex").lean();
-        const voteCounts = votes.reduce<Record<number, number>>((acc, vote) => {
-            const index = vote.optionIndex ?? 0;
-            acc[index] = (acc[index] ?? 0) + 1;
+
+        // const votes = await Vote.find({ pollId: id }).select("optionIndex").lean();
+        // const voteCounts = votes.reduce<Record<number, number>>((acc, vote) => {
+        //     const index = vote.optionIndex ?? 0;
+        //     acc[index] = (acc[index] ?? 0) + 1;
+        //     return acc;
+        // }, {});
+
+        const voteAggregates = await Vote.aggregate([
+            { $match: { pollId: new Types.ObjectId(id) } },
+            { $group: { _id: "$optionIndex", count: { $sum: 1 } } },
+        ]);
+
+        const voteCounts = voteAggregates.reduce<Record<number, number>>((acc, vote) => {
+            acc[vote._id as number] = vote.count;
             return acc;
         }, {});
 
