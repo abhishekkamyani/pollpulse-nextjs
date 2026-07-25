@@ -16,11 +16,14 @@ if (!cached.mongoose) {
 
 export async function connectDB() {
     if (cached.mongoose!.conn) return cached.mongoose!.conn   // already connected, reuse
-  
+
     if (!cached.mongoose!.promise) {
-        cached.mongoose!.promise = mongoose.connect(MONGODB_URI) // first time, start connecting
+        cached.mongoose!.promise = mongoose.connect(MONGODB_URI, {
+            family: 4, // <--- Add this line to force IPv4
+            dbName: 'poll-pulse',
+        }) // first time, start connecting
     }
-  
+
     cached.mongoose!.conn = await cached.mongoose!.promise     // wait and cache it
     return cached.mongoose!.conn;
 }
