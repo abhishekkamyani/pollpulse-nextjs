@@ -1,6 +1,5 @@
 import Link from "next/link"
 import { ArrowLeft, BarChart3, Trophy, Users, Clock, CalendarDays } from "lucide-react"
-import { format } from "date-fns"
 
 import { cn } from "@/lib/utils"
 import {
