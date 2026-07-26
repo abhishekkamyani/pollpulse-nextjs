@@ -41,7 +41,7 @@ export const LandingView = () => {
             </Link>
           </Button>
           <Button size="lg" variant="outline" className="h-12 px-6 text-base w-full sm:w-auto border-border/80 bg-background/50 backdrop-blur-sm">
-            <Link href="/login">
+            <Link href="/polls">
               Explore Public Polls
             </Link>
           </Button>

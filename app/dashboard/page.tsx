@@ -62,7 +62,7 @@ export default async function DashboardPage() {
             Get started by launching your first interactive questionnaire card layout to gather live insights from your network.
           </p>
           <Button className="gap-2 px-6 py-5 shadow-md shadow-primary/5">
-            <Link href="/polls/create">
+            <Link href="/polls/create" className="flex items-center gap-2">
               <FolderPlus className="h-4 w-4" />
               <span>Create Your First Poll</span>
             </Link>

@@ -28,26 +28,35 @@ export const castVote = async (pollId: string, optionIndex: number): ApiPromise 
     }
 
     const isCreator = session?.user?.id === isPollFound?.createdBy;
-    const alreadyVoted = Vote.findOne({pollId: isPollFound._id, userId: isPollFound.createdBy})
-    const isExpired = isPollFound.expiresAt && new Date(isPollFound.expiresAt) < new Date()
+    const alreadyVoted = await Vote.findOne<IVote>({ pollId: isPollFound._id, userId: session.user.id }).lean();
+    const isExpired = isPollFound.expiresAt && new Date(isPollFound.expiresAt) < new Date();
 
-    const isLocked = isCreator || alreadyVoted || isExpired;
+    const isLocked = isCreator || Boolean(alreadyVoted?._id) || isExpired;
 
     if (isLocked) {
-      throw new Error();
+      return { success: false, error: "Something went wrong. Please try again." };
     }
-    
 
-    const vote = await Vote.create({
-      pollId,
-      optionIndex,
-      userId: session?.user?.id
-    })
+
+    try {
+      await Vote.create({
+        pollId,
+        optionIndex,
+        userId: session?.user?.id,
+      })
+    } catch (err: any) {
+      // Handle duplicate key (race condition where two requests create the same vote)
+      // Mongo duplicate key error code is 11000 (E11000). Return deterministic message.
+      if (err && (err.code === 11000 || String(err.message).includes("E11000"))) {
+        return { success: false, error: "You already voted on this poll." };
+      }
+      throw err
+    }
 
     revalidatePath("/");
-    // redirect(`/polls/${newPoll._id.toString()}`);
     return { success: true }
   } catch (error) {
+    console.log("Vote Cast error:", error);
     return { success: false, error: "Something went wrong. Please try again." };
   }
 }
@@ -63,7 +72,12 @@ export const checkVote = async (
     const session = await auth();
 
     if (!session?.user?.id) {
-      return { success: false, error: "Please log in." };
+      return {
+        success: true, pollVote: {
+          isVoted: false,
+          optionIndex: null,
+        },
+      };
     }
 
     await connectDB();

@@ -18,16 +18,12 @@ import Link from "next/link";
 export const UserMenu = () => {
     const { data: session, status } = useSession()
     const isLoading = status === "loading"
-    console.log("=== session ===", session?.user)
-    console.log("=== status ===", status)
 
     return (
         <div className="flex items-center gap-4">
             {isLoading ? (
-                // Spinner or skeleton while loading session
                 <div className="h-9 w-9 animate-pulse rounded-full bg-muted" />
             ) : session?.user ? (
-                // User is logged in -> Show Dropdown Menu
                 <DropdownMenu>
                     <DropdownMenuTrigger className="relative h-9 w-9 rounded-full select-none outline-none hover:bg-muted transition-colors">
                         <Avatar className="h-9 w-9">
@@ -42,22 +38,25 @@ export const UserMenu = () => {
                             <DropdownMenuLabel className="font-normal">
                                 <div className="flex flex-col space-y-1">
                                     <p className="text-sm font-medium leading-none">{session.user.name}</p>
-                                    <p className="text-xs leading-none text-muted-foreground">{session.user.email}</p>
+                                    <p title={session.user.email || ""} className="text-xs leading-none text-muted-foreground lowercase truncate">{session.user.email}</p>
                                 </div>
                             </DropdownMenuLabel>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <Link href={"/profile"}>
+
+                        <DropdownMenuItem render={<Link href="/profile" className="cursor-pointer" />}>
                             <User className="mr-2 h-4 w-4" />
                             <span>Profile</span>
-                        </Link>
-                        <Link href={"/settings"}>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem render={<Link href="/settings" className="cursor-pointer" />}>
                             <Settings className="mr-2 h-4 w-4" />
                             <span>Settings</span>
-                        </Link>
+                        </DropdownMenuItem>
+
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                            className="text-destructive"
+                            className="text-destructive cursor-pointer"
                             onClick={() => signOut()}
                         >
                             <LogOut className="mr-2 h-4 w-4" />
@@ -66,13 +65,12 @@ export const UserMenu = () => {
                     </DropdownMenuContent>
                 </DropdownMenu>
             ) : (
-                // User is logged out -> Show Auth Buttons
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm">
-                        <Link href={"/login"}>Sign In</Link>
+                    <Button variant="ghost" size="sm" render={<Link href="/login" />}>
+                        Sign In
                     </Button>
-                    <Button size="sm" >
-                        <Link href={"/register"}>Join</Link>
+                    <Button size="sm" render={<Link href="/register" />}>
+                        Join
                     </Button>
                 </div>
             )}

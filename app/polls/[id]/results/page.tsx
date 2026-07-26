@@ -1,6 +1,5 @@
 import Link from "next/link"
 import { ArrowLeft, BarChart3, Trophy, Users, Clock, CalendarDays } from "lucide-react"
-import { format } from "date-fns"
 
 import { cn } from "@/lib/utils"
 import {
@@ -13,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { getPollResults } from "@/actions/poll.action"
 import { CopyUrlButton } from "@/components/copy-url-button"
+import { formatDatetime } from "@/lib/dataHelper"
 // import { headers } from "next/headers"
 // import { redirect } from "next/navigation"
 
@@ -103,14 +103,14 @@ export default async function PollResultsPage({ params }: PollResultsPageProps) 
               )}>
                 <Clock className="h-3.5 w-3.5 shrink-0" />
                 {isExpired
-                  ? `Closed ${format(new Date(poll.expiresAt), "MMM d, yyyy")}`
-                  : `Closes ${format(new Date(poll.expiresAt), "MMM d, yyyy")}`}
+                  ? `Closed ${formatDatetime(poll.expiresAt)}`
+                  : `Closes ${formatDatetime(poll.expiresAt)}`}
               </span>
             )}
             {poll.createdAt && (
               <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
                 <CalendarDays className="h-3.5 w-3.5 shrink-0" />
-                {format(new Date(poll.createdAt), "MMM d, yyyy")}
+                {formatDatetime(poll.createdAt)}
               </span>
             )}
           </div>
