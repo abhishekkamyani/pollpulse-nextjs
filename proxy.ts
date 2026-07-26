@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 const protectedRoutes = ["/dashboard", "/polls/create", "/api/polls/results"];
+const notForAuthRoutes = ["/"];
 
 export async function proxy(req: NextRequest) {
   const token = await getToken({
@@ -20,6 +21,15 @@ export async function proxy(req: NextRequest) {
     const loginUrl = new URL("/login", req.nextUrl.origin);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  const itRestrictedRouteForAuth = notForAuthRoutes.some((route) => 
+    pathname === route
+  )
+
+  if(isLoggedIn && itRestrictedRouteForAuth){
+    const dashboardUrl = new URL("/polls", req.nextUrl.origin)
+    return NextResponse.redirect(dashboardUrl);
   }
 
   return NextResponse.next();

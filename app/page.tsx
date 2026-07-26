@@ -1,5 +1,5 @@
 import { LandingView } from "@/components/landing-view";
-import { PollsView } from "@/components/polls-view";
+// import { PollsView } from "@/components/polls-view";
 import { auth } from "@/lib/auth";
 import { Metadata } from "next";
 import { cache } from "react";
@@ -68,13 +68,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const session = await getSession();
+  // const session = await getSession();
 
   // if (session?.user && session?.user?.id) {
   //   return <PollsView />;
   // }
 
-  // return <LandingView />
-
-  return <PollsView />;
+  return <LandingView />
 }

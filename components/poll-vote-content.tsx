@@ -14,7 +14,7 @@ export async function PollVoteContent({ id }: { id: string }) {
   if (!poll) notFound();
 
   const result = await checkVote(poll._id);
-  if (!result.success) return <div>Error loading vote state</div>;
+  // if (!result.success) return <div>Error loading vote state</div>;
 
   const formattedPoll: PollDetails = {
     _id: poll._id,

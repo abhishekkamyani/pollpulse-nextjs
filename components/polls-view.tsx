@@ -19,13 +19,8 @@ import {
 import { getPolls } from "@/actions/poll.action"
 
 export async function PollsView() {
-  // --- HANDLE YOUR LOGIC HERE ---
-  // Fetch all polls except the current user's polls
   const response = await getPolls();
-  console.log("Fetched polls:", response);
   const polls = response.data || [];
-  console.log("Fetched polls data:", polls);
-  // ------------------------------
 
   return (
     <div className="w-full px-4 sm:px-8 lg:px-12 py-10 md:py-14 space-y-8 antialiased">

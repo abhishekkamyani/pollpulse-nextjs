@@ -18,7 +18,7 @@ import { PollDetails } from "@/lib/types"
 import { castVote } from "@/actions/vote.action"
 import { deletePoll } from "@/actions/poll.action"
 import { DeleteButton } from "./delete-button"
-import { format } from "date-fns"
+// import { format } from "date-fns"
 import { formatDatetime } from "@/lib/dataHelper"
 
 export function PollVote({ poll }: { poll: PollDetails }) {
@@ -32,7 +32,7 @@ export function PollVote({ poll }: { poll: PollDetails }) {
     const isCreator = poll.isCreator
     const alreadyVoted = poll.pollVote?.isVoted ?? false
     const isExpired = poll.expiresAt && new Date(poll.expiresAt) < new Date()
-    const isLocked = false;
+    const isLocked = isCreator || hasVoted || alreadyVoted || isExpired;
 
     const handleVoteSubmit = () => {
         if (isCreator) {
@@ -295,7 +295,7 @@ export function PollVote({ poll }: { poll: PollDetails }) {
 
             {/* Error message */}
             {errorMessage && (
-                <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-center">
+                <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 absolute top-10 -right-1/2">
                     <p className="text-sm font-medium text-destructive">{errorMessage}</p>
                 </div>
             )}

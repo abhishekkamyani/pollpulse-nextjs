@@ -28,13 +28,13 @@ export const castVote = async (pollId: string, optionIndex: number): ApiPromise 
     }
 
     const isCreator = session?.user?.id === isPollFound?.createdBy;
-    const alreadyVoted = Vote.findOne({pollId: isPollFound._id, userId: isPollFound.createdBy})
-    const isExpired = isPollFound.expiresAt && new Date(isPollFound.expiresAt) < new Date()
+    const alreadyVoted = await Vote.findOne<IVote>({ pollId: isPollFound._id, userId: session.user.id }).lean();
+    const isExpired = isPollFound.expiresAt && new Date(isPollFound.expiresAt) < new Date();
 
-    const isLocked = isCreator || alreadyVoted || isExpired;
+    const isLocked = isCreator || Boolean(alreadyVoted?._id) || isExpired;
 
     if (isLocked) {
-      throw new Error();
+      return { success: false, error: "Something went wrong. Please try again." };
     }
     
 
@@ -48,6 +48,7 @@ export const castVote = async (pollId: string, optionIndex: number): ApiPromise 
     // redirect(`/polls/${newPoll._id.toString()}`);
     return { success: true }
   } catch (error) {
+    console.log("Vote Cast error:", error);
     return { success: false, error: "Something went wrong. Please try again." };
   }
 }
