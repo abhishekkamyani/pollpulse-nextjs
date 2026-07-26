@@ -19,9 +19,9 @@ function LoginForm() {
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
-    const rawCallback = params.get("callbackUrl") || "/dashboard";
+    const rawCallback = params.get("callbackUrl") || "/polls";
     const callbackUrl = rawCallback.startsWith("http")
-      ? new URL(rawCallback).pathname  // strip domain if absolute, keep only path
+      ? new URL(rawCallback).pathname
       : rawCallback;
 
     try {
@@ -33,14 +33,14 @@ function LoginForm() {
 
       if (result?.error) {
         setError("Invalid email or password");
-        setLoading(false); // FIX: only stop loading on error — not in finally
+        setLoading(false);
         return;
       }
 
-      router.refresh();
-      router.push(callbackUrl);
-      // intentionally NOT calling setLoading(false) here —
-      // keep spinner showing during navigation so user sees feedback
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      window.location.href = callbackUrl;
+
     } catch (err) {
       setError("Unable to sign in. Please try again.");
       setLoading(false);
