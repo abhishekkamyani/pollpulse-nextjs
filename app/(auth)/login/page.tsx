@@ -18,21 +18,41 @@ function LoginForm() {
     const form = e.currentTarget;
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
-    const callbackUrl = params.get("callbackUrl") || "/dashboard";
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    // FIX: always use a relative path — never build an absolute URL
+    // absolute URLs with window.location.origin cause NextAuth to behave
+    // differently in production vs localhost
+    const rawCallback = params.get("callbackUrl") || "/dashboard";
+    const callbackUrl = rawCallback.startsWith("http")
+      ? new URL(rawCallback).pathname  // strip domain if absolute, keep only path
+      : rawCallback;
 
-    if (result?.error) {
-      setError("Invalid email or password");
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+        // FIX: removed callbackUrl from signIn call entirely —
+        // passing it here causes NextAuth to do its own redirect
+        // logic which conflicts with redirect: false on Vercel
+      });
+
+      if (result?.error) {
+        setError("Invalid email or password");
+        setLoading(false); // FIX: only stop loading on error — not in finally
+        return;
+      }
+
+      // FIX: router.refresh() before push forces the server session to
+      // update so protected routes don't redirect back to login
+      router.refresh();
+      router.push(callbackUrl);
+      // intentionally NOT calling setLoading(false) here —
+      // keep spinner showing during navigation so user sees feedback
+    } catch (err) {
+      setError("Unable to sign in. Please try again.");
       setLoading(false);
-      return;
     }
-
-    router.push(callbackUrl);
   }
 
   return (

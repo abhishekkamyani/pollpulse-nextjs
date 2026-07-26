@@ -15,25 +15,16 @@ const config = {
             },
             async authorize(credentials) {
                 try {
-                    console.log("=== AUTH DEBUG ===");
-                    console.log("Email received:", credentials?.email);
-                    console.log("Password received:", credentials?.password);
-
                     await connectDB();
-                    console.log("DB connected");
 
                     const user = await User.findOne({ email: credentials?.email });
-                    console.log("User found:", user ? "YES" : "NO");
 
                     if (!user) return null;
-
-                    console.log("Stored hash:", user.password);
 
                     const isValid = await bcrypt.compare(
                         credentials?.password as string,
                         user.password
                     );
-                    console.log("Password valid:", isValid);
 
                     if (!isValid) return null;
 
