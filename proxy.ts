@@ -5,9 +5,16 @@ const protectedRoutes = ["/dashboard", "/polls/create", "/api/polls/results"];
 const authRoutes = ["/", "/login", "/register"];
 
 export async function proxy(req: NextRequest) {
+  const isProd = process.env.NODE_ENV === "production";
+  const cookieName = isProd
+    ? "__Secure-authjs.session-token"
+    : "authjs.session-token";
+
   const token = await getToken({
     req,
     secret: process.env.AUTH_SECRET,
+    cookieName,
+    salt: cookieName,
   });
 
   const isLoggedIn = !!token;
@@ -17,7 +24,6 @@ export async function proxy(req: NextRequest) {
     pathname.startsWith(route)
   );
 
-  // Redirect unauthenticated users away from protected routes
   if (isProtected && !isLoggedIn) {
     const loginUrl = new URL("/login", req.nextUrl.origin);
     loginUrl.searchParams.set("callbackUrl", pathname);
